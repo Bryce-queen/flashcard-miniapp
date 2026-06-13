@@ -1,0 +1,178 @@
+<!-- 闪卡 · 一句话生成分享卡片 -->
+<view class="page-wrap">
+  <!-- 刊头 -->
+  <view class="masthead">
+    <text class="masthead-brand">闪卡</text>
+    <view class="masthead-rule"></view>
+    <text class="masthead-desc">一句话 · 一张卡 · 一次分享</text>
+  </view>
+
+  <!-- 模式切换 -->
+  <view class="mode-bar">
+    <view class="mode-tab {{mode === 'write' ? 'mode-active' : ''}}" bindtap="onSwitchMode" data-mode="write">
+      <text>自己写</text>
+    </view>
+    <view class="mode-tab {{mode === 'ai' ? 'mode-active' : ''}}" bindtap="onSwitchMode" data-mode="ai">
+      <text>AI 写</text>
+    </view>
+  </view>
+
+  <!-- 手写模式 -->
+  <block wx:if="{{mode === 'write'}}">
+    <!-- 空状态 · 示例引导 -->
+    <view class="examples" wx:if="{{!inputText}}">
+      <text class="examples-label">试试这些：</text>
+      <view class="examples-list">
+        <view class="example-chip" bindtap="onExampleTap" data-text="今天学了一个新词：**反脆弱**">
+          <text>今天学了一个新词：反脆弱</text>
+        </view>
+        <view class="example-chip" bindtap="onExampleTap" data-text="# 此刻
+窗外下雨，我在听坂本龙一">
+          <text>此刻 · 窗外下雨，我在听坂本龙一</text>
+        </view>
+        <view class="example-chip" bindtap="onExampleTap" data-text="人生不是马拉松
+**是无数次短跑**">
+          <text>人生不是马拉松…</text>
+        </view>
+        <view class="example-chip" bindtap="onExampleTap" data-text="完成 > 完美">
+          <text>完成 > 完美</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 输入区 -->
+    <view class="editor">
+      <textarea
+        class="editor-textarea"
+        value="{{inputText}}"
+        placeholder="写下你想说的话&#10;&#10;支持 **粗体**、# 标题&#10;空行 = 新段落"
+        maxlength="500"
+        auto-height
+        bindinput="onTextInput"
+        show-confirm-bar="{{false}}"
+      />
+      <view class="editor-footer">
+        <text class="editor-hint">**粗体** · # 标题 · 空行分段</text>
+        <text class="editor-count" wx:if="{{inputText.length}}">{{inputText.length}} / 500</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- AI 模式 -->
+  <block wx:if="{{mode === 'ai'}}">
+    <view class="ai-input-wrap">
+      <textarea
+        class="editor-textarea"
+        value="{{aiPrompt}}"
+        placeholder="输入一个话题或心情&#10;&#10;比如：加班到深夜、周末的咖啡馆、想家了…"
+        maxlength="200"
+        auto-height
+        bindinput="onAiPromptInput"
+        show-confirm-bar="{{false}}"
+      />
+      <button
+        class="btn btn-ai"
+        bindtap="onAiGenerate"
+        disabled="{{!aiPrompt}}"
+        loading="{{generating}}"
+      >
+        {{generating ? '正在生成…' : 'AI 写一句话'}}
+      </button>
+    </view>
+  </block>
+
+  <!-- 比例 + 模板选择 -->
+  <view class="select-bar">
+    <view class="ratio-row">
+      <view
+        wx:for="{{ratios}}"
+        wx:key="id"
+        class="ratio-chip {{currentRatio === index ? 'ratio-active' : ''}}"
+        data-index="{{index}}"
+        bindtap="onSelectRatio"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+    <scroll-view class="template-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="template-list">
+        <view
+          wx:for="{{templates}}"
+          wx:key="id"
+          class="template-chip {{currentTemplate === index ? 'chip-active' : ''}}"
+          data-index="{{index}}"
+          bindtap="onSelectTemplate"
+        >
+          <view class="chip-swatch" style="background:{{item.bg}}; border:1px solid {{item.rule}}"></view>
+          <text class="chip-label">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 预览卡 -->
+  <view class="preview-area" wx:if="{{inputText}}">
+    <view class="preview-card" style="background:{{activeTemplate.bg}}; aspect-ratio:{{activeRatio.w}}/{{activeRatio.h}}">
+      <view class="card-hairline" style="background:{{activeTemplate.rule}}"></view>
+      <text class="card-body" style="color:{{activeTemplate.text}}">{{previewText}}</text>
+      <view class="card-colophon">
+        <view class="colophon-rule" style="background:{{activeTemplate.accent}}"></view>
+        <text class="colophon-text" style="color:{{activeTemplate.text2}}">闪卡</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作区 -->
+  <view class="action-bar" wx:if="{{inputText}}">
+    <button class="btn btn-primary" bindtap="onGenerate" disabled="{{!inputText || generating}}">
+      {{generating ? '正在绘制…' : '生成卡片'}}
+    </button>
+    <button class="btn btn-secondary" bindtap="onSaveToAlbum" disabled="{{!inputText || generating}}">
+      保存到相册
+    </button>
+  </view>
+
+  <!-- 最近卡片 · 历史记录 -->
+  <view class="history-section" wx:if="{{history.length}}">
+    <view class="history-header">
+      <text class="history-title">最近</text>
+      <text class="history-clear" bindtap="onClearHistory">清空</text>
+    </view>
+    <scroll-view class="history-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="history-list">
+        <view
+          wx:for="{{history}}"
+          wx:key="time"
+          class="history-card"
+          data-index="{{index}}"
+          bindtap="onHistoryTap"
+        >
+          <image wx:if="{{!item.thumbBroken}}" class="history-thumb" src="{{item.path}}" mode="aspectFill" binderror="onHistoryThumbError" data-index="{{index}}"></image>
+          <view wx:else class="history-thumb-fallback" style="background:{{templates[item.templateIndex].bg}}; border:1px solid {{templates[item.templateIndex].rule}}">
+            <text class="thumb-fallback-text" style="color:{{templates[item.templateIndex].accent}}">已失效</text>
+          </view>
+          <text class="history-text">{{(item.text || '').slice(0, 12)}}{{item.text && item.text.length > 12 ? '…' : ''}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 结果弹窗 -->
+  <view class="modal" wx:if="{{showResult}}">
+    <view class="modal-overlay" bindtap="onCloseResult"></view>
+    <view class="modal-panel">
+      <text class="modal-hd">卡片已生成<text wx:if="{{truncated}}" style="color:#b04a1a;font-weight:400;font-size:24rpx"> · 文字较长已截断</text></text>
+      <canvas
+        type="2d"
+        id="cardCanvas"
+        class="modal-canvas"
+        style="width:{{canvasDisplayW}}rpx; height:{{canvasDisplayH}}rpx"
+      ></canvas>
+      <image wx:if="{{cardImagePath}}" class="modal-preview" src="{{cardImagePath}}" mode="widthFix"></image>
+      <view class="modal-actions">
+        <button class="btn btn-share" open-type="share" disabled="{{!cardReady}}">分享给朋友</button>
+        <button class="btn btn-download" bindtap="onDownloadImage" disabled="{{!cardReady}}">保存图片</button>
+      </view>
+    </view>
+  </view>
+</view>

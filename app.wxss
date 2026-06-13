@@ -1,0 +1,24 @@
+/* ═══════════════════════════════════════════════════════
+   闪卡 · 设计系统
+   基于花叔 huashu-design · 反 AI slop
+   风格：Warm Editorial + Swiss Monochrome
+   ═══════════════════════════════════════════════════════ */
+
+page {
+  /* 暖白纸底 — 与多数小程序米白色不同，带出版级暖意 */
+  background-color: #fbf7ee;
+  color: #1a1612;
+  font-family: -apple-system, 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  font-feature-settings: "kern", "liga";
+  font-size: 28rpx;
+  line-height: 1.72;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  page {
+    background-color: #1a1610;
+    color: #ece4d2;
+  }
+}

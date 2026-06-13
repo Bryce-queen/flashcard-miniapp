@@ -1,0 +1,463 @@
+/* ════════════════════════════════════════════
+   闪卡 · 主页样式
+   基于花叔 Warm Editorial + Swiss 设计系统
+   原则：发丝线 · 0 渐变 · 0 发光 · 0 emoji
+   ════════════════════════════════════════════ */
+
+/* ── 页面容器 ── */
+.page-wrap {
+  padding: 64rpx 48rpx 80rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ── 刊头 ── */
+.masthead {
+  margin-bottom: 56rpx;
+}
+.masthead-brand {
+  display: block;
+  font-size: 52rpx;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1a1612;
+}
+.masthead-rule {
+  width: 30%;
+  height: 1px;
+  background: #b04a1a;
+  margin: 20rpx 0;
+}
+.masthead-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #7a7062;
+  letter-spacing: 0.04em;
+}
+
+/* ── 模式切换 · 双 Tab ── */
+.mode-bar {
+  display: flex;
+  gap: 4rpx;
+  margin-bottom: 40rpx;
+  border-bottom: 1px solid #d9d2c0;
+}
+.mode-tab {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0 20rpx;
+  font-size: 28rpx;
+  color: #b5aa9a;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.mode-active {
+  color: #1a1612;
+  border-bottom-color: #b04a1a;
+  font-weight: 600;
+}
+
+/* ── AI 输入区 ── */
+.ai-input-wrap {
+  margin-bottom: 44rpx;
+  padding-top: 12rpx;
+}
+.ai-input-wrap .editor-textarea {
+  border-bottom: 1px solid #d9d2c0;
+  border-top: 1px solid #d9d2c0;
+  padding: 36rpx 0;
+  min-height: 140rpx;
+}
+.btn-ai {
+  width: 100%;
+  height: 96rpx;
+  margin-top: 32rpx;
+  background: transparent;
+  color: #b04a1a;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: 2px solid #b04a1a;
+  border-radius: 2rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-ai:active {
+  background: #b04a1a;
+  color: #fbf7ee;
+}
+.btn-ai[disabled] {
+  opacity: 0.3;
+}
+
+/* ── 空状态示例 ── */
+.examples {
+  margin-bottom: 44rpx;
+  padding: 32rpx 36rpx;
+  background: #faf7ef;
+}
+.examples-label {
+  display: block;
+  font-size: 22rpx;
+  color: #b5aa9a;
+  letter-spacing: 0.06em;
+  margin-bottom: 20rpx;
+}
+.examples-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.example-chip {
+  padding: 10rpx 24rpx;
+  font-size: 26rpx;
+  color: #4a4338;
+  background: transparent;
+  border: 1px solid #d9d2c0;
+  border-radius: 2rpx;
+  white-space: nowrap;
+}
+.example-chip:active {
+  background: #1a1612;
+  color: #fbf7ee;
+  border-color: #1a1612;
+}
+
+/* ── 输入区 · 无边框纯文本 ── */
+.editor {
+  margin-bottom: 44rpx;
+  padding: 36rpx 0;
+  border-bottom: 1px solid #d9d2c0;
+  border-top: 1px solid #d9d2c0;
+}
+.editor-textarea {
+  width: 100%;
+  min-height: 180rpx;
+  font-size: 32rpx;
+  line-height: 1.88;
+  color: #1a1612;
+  background: transparent;
+}
+.editor-textarea::placeholder {
+  color: #b5aa9a;
+}
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16rpx;
+}
+.editor-hint {
+  font-size: 22rpx;
+  color: #b5aa9a;
+  letter-spacing: 0.02em;
+}
+.editor-count {
+  font-size: 22rpx;
+  color: #7a7062;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 比例 + 模板选择区 ── */
+.select-bar {
+  margin-bottom: 40rpx;
+}
+.ratio-row {
+  display: flex;
+  gap: 8rpx;
+  margin-bottom: 28rpx;
+}
+.ratio-chip {
+  padding: 14rpx 32rpx;
+  font-size: 24rpx;
+  color: #b5aa9a;
+  letter-spacing: 0.06em;
+  border: 1px solid #d9d2c0;
+  border-radius: 2rpx;
+  background: transparent;
+  transition: all 0.15s;
+}
+.ratio-active {
+  color: #1a1612;
+  border-color: #b04a1a;
+  background: rgba(176,74,26,0.06);
+  font-weight: 600;
+}
+
+/* ── 模板选择 · Chip 式 ── */
+.template-scroll {
+  white-space: nowrap;
+  width: 100%;
+}
+.template-list {
+  display: inline-flex;
+  gap: 20rpx;
+  padding: 0 4rpx;
+}
+.template-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 14rpx 28rpx;
+  border: 1px solid #d9d2c0;
+  border-radius: 2rpx;
+  background: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+.chip-swatch {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 1rpx;
+  flex-shrink: 0;
+}
+.chip-label {
+  font-size: 26rpx;
+  color: #4a4338;
+  letter-spacing: 0.02em;
+}
+.chip-active {
+  background: #1a1612;
+  border-color: #1a1612;
+}
+.chip-active .chip-label {
+  color: #fbf7ee;
+}
+
+/* ── 预览卡 ── */
+.preview-area {
+  margin-bottom: 48rpx;
+}
+.preview-card {
+  padding: 56rpx 52rpx 52rpx;
+  min-height: 320rpx;
+  position: relative;
+}
+.card-hairline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+.card-body {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 500;
+  line-height: 1.78;
+  letter-spacing: 0.01em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.card-colophon {
+  margin-top: 56rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.colophon-rule {
+  width: 40rpx;
+  height: 1px;
+  flex-shrink: 0;
+}
+.colophon-text {
+  font-size: 22rpx;
+  letter-spacing: 0.05em;
+}
+
+/* ── 操作按钮 · Rams 式 ── */
+.action-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+.btn {
+  height: 96rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: 2px solid #1a1612;
+  border-radius: 2rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #1a1612;
+  transition: background 0.15s, color 0.15s;
+}
+.btn[disabled] {
+  opacity: 0.3;
+  pointer-events: none;
+}
+.btn-primary {
+  background: #1a1612;
+  color: #fbf7ee;
+}
+.btn-primary:active {
+  background: #4a4338;
+}
+.btn-secondary:active {
+  background: #1a1612;
+  color: #fbf7ee;
+}
+
+/* ── 结果弹窗 ── */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(26, 22, 18, 0.92);
+}
+.modal-panel {
+  position: relative;
+  width: 640rpx;
+  background: #fbf7ee;
+  padding: 48rpx 40rpx 40rpx;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modal-hd {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1612;
+  margin-bottom: 36rpx;
+  letter-spacing: 0.02em;
+}
+.modal-canvas {
+  width: 540rpx;
+  height: 720rpx;
+  margin-bottom: 28rpx;
+}
+.modal-preview {
+  width: 540rpx;
+  border: 1px solid #d9d2c0;
+  margin-bottom: 28rpx;
+}
+.modal-actions {
+  display: flex;
+  gap: 24rpx;
+  width: 100%;
+}
+.btn-share {
+  flex: 1;
+  height: 80rpx;
+  background: #1a1612;
+  color: #fbf7ee;
+  font-size: 26rpx;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-download {
+  flex: 1;
+  height: 80rpx;
+  background: transparent;
+  color: #1a1612;
+  font-size: 26rpx;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  border: 2px solid #1a1612;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-share:active {
+  background: #4a4338;
+}
+.btn-download:active {
+  background: #1a1612;
+  color: #fbf7ee;
+}
+
+/* ── 卡片历史 ── */
+.history-section {
+  margin-top: 56rpx;
+}
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+.history-title {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #7a7062;
+  letter-spacing: 0.06em;
+}
+.history-clear {
+  font-size: 22rpx;
+  color: #b5aa9a;
+  letter-spacing: 0.04em;
+  padding: 4rpx 0;
+}
+.history-clear:active {
+  color: #b04a1a;
+}
+.history-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+.history-list {
+  display: inline-flex;
+  gap: 20rpx;
+}
+.history-card {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 12rpx;
+  width: 160rpx;
+  flex-shrink: 0;
+}
+.history-thumb {
+  width: 160rpx;
+  height: 214rpx;
+  border: 1px solid #d9d2c0;
+  background: #faf8f0;
+}
+.history-thumb-fallback {
+  width: 160rpx;
+  height: 214rpx;
+  border-radius: 2rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.thumb-fallback-text {
+  font-size: 22rpx;
+  opacity: 0.55;
+}
+.history-text {
+  font-size: 20rpx;
+  color: #7a7062;
+  line-height: 1.4;
+  white-space: normal;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.history-card:active .history-thumb {
+  opacity: 0.6;
+}

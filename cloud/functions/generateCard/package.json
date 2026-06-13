@@ -1,0 +1,9 @@
+{
+  "name": "generateCard",
+  "version": "1.0.0",
+  "description": "AI 一句话生成卡片文案",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}
