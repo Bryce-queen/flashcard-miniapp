@@ -11,7 +11,7 @@ const typo = require('./typography')
  * opts: { canvas, ctx, W, H, dpr, tpl, rawText, mdLines, onDone(path, truncated) }
  */
 function drawCard(opts) {
-  const { canvas, ctx, W, H, dpr, tpl, rawText, mdLines, onDone } = opts
+  const { canvas, ctx, W, H, dpr, tpl, rawText, mdLines, onDone, qrCodePath } = opts
 
   canvas.width = W * dpr
   canvas.height = H * dpr
@@ -90,7 +90,9 @@ function drawCard(opts) {
   drawColophon(ctx, W, H, tpl, d)
 
   // ═══════ 5. 水印 ═══════
-  drawWatermark(ctx, W, H, tpl.bg)
+  drawWatermark(ctx, W, H, tpl.bg, qrCodePath, () => {
+    onDone(truncated)
+  })
 
   onDone(truncated)
 }
@@ -220,6 +222,24 @@ function drawColophon(ctx, W, H, tpl, d) {
     ctx.textAlign = 'center'
     ctx.fillText('闪卡', W / 2, colophonY + 16)
     ctx.globalAlpha = 1
+  } else if (d.colophonStyle === 'box') {
+    // Brutalist: 实心色块 + 反白文字
+    const bw = 72, bh = 28
+    ctx.fillStyle = tpl.accent
+    ctx.fillRect(W - 48 - bw, colophonY - 8, bw, bh)
+    ctx.fillStyle = tpl.bg
+    ctx.font = '700 16px -apple-system, "PingFang SC", sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('闪卡', W - 48 - bw / 2, colophonY + 11)
+    ctx.globalAlpha = 1
+  } else if (d.colophonStyle === 'prompt') {
+    // Terminal: `$ ` 前缀 + 正文
+    ctx.fillStyle = tpl.text2
+    ctx.globalAlpha = 0.5
+    ctx.font = '400 16px "Courier New", monospace'
+    ctx.textAlign = 'right'
+    ctx.fillText('$ 闪卡', W - 48, colophonY + 16)
+    ctx.globalAlpha = 1
   } else {
     ctx.fillStyle = tpl.text2
     ctx.globalAlpha = 0.35
@@ -231,17 +251,47 @@ function drawColophon(ctx, W, H, tpl, d) {
   ctx.textAlign = 'left'
 }
 
-function drawWatermark(ctx, W, H, bg) {
+function drawWatermark(ctx, W, H, bg, qrCodePath, onReady) {
+  ctx.save()
+  // 小程序码（右下角 68×68 rpx → px 按比例缩放）
+  const qrSize = Math.round(W * 0.12)
+  const qrX = W - qrSize - 16
+  const qrY = H - qrSize - 12
+
+  if (qrCodePath) {
+    const img = ctx.createImage()
+    img.onload = () => {
+      // 半透明底衬
+      ctx.fillStyle = getLuminance(bg) > 0.45 ? '#000000' : '#ffffff'
+      ctx.globalAlpha = 0.06
+      ctx.fillRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8)
+      ctx.globalAlpha = 0.88
+      ctx.drawImage(img, qrX, qrY, qrSize, qrSize)
+      ctx.restore()
+      if (onReady) onReady()
+    }
+    img.onerror = () => {
+      drawWatermarkText(ctx, W, H, bg)
+      ctx.restore()
+      if (onReady) onReady()
+    }
+    img.src = qrCodePath
+  } else {
+    drawWatermarkText(ctx, W, H, bg)
+    ctx.restore()
+    if (onReady) onReady()
+  }
+}
+
+function drawWatermarkText(ctx, W, H, bg) {
   const text = '闪 卡'
   const fs = 14
-  ctx.save()
   ctx.fillStyle = getLuminance(bg) > 0.45 ? '#000000' : '#ffffff'
   ctx.globalAlpha = 0.08
   ctx.font = `${fs}px -apple-system, "PingFang SC", sans-serif`
   ctx.textAlign = 'right'
   ctx.textBaseline = 'bottom'
   ctx.fillText(text, W - 20, H - 14)
-  ctx.restore()
 }
 
 function getLuminance(hex) {

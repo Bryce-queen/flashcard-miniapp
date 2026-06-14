@@ -41,3 +41,18 @@ wx.request({
 })
 ```
 需在微信后台配置 request 合法域名。
+
+---
+
+## getQRCode · 小程序码云函数
+
+### 部署
+微信开发者工具 → 云函数 → 新建 `getQRCode`
+→ 把 `cloud/getQRCode/index.js` 和 `cloud/getQRCode/config.json` 复制进去
+→ 右键 `getQRCode` → 上传并部署
+
+### 说明
+- 每次生成卡片时自动获取小程序码，画在右下角水印位
+- 本地缓存 5 分钟，过期自动刷新
+- 需在云函数权限配置中开启 `wxacode.getUnlimited`
+- 无云开发时自动降级为文字水印「闪卡」

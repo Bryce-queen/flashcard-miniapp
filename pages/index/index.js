@@ -31,16 +31,74 @@ Page({
     currentRatio: 0,
     activeRatio: { id: '3:4', label: '竖版 3:4', w: 540, h: 720 },
     showResult: false,
+    skipModal: false,
     cardImagePath: '',
     cardReady: false,
     truncated: false,
+    showDrafts: false,
+    draftVariants: [],
     canvasDisplayW: 540,
     canvasDisplayH: 720,
     history: []
   },
 
+  // 小程序码本地缓存路径（懒加载）
+  _qrCodePath: '',
+
   onLoad() { this.loadHistory() },
   onShow() { this.loadHistory() },
+
+  /* ── 小程序码 · 懒加载 + 5min 缓存 ── */
+  fetchQRCode(callback) {
+    if (this._qrCodePath) {
+      // 检查缓存是否 ≤5min 有效
+      const fs = wx.getFileSystemManager()
+      try {
+        const stat = fs.statSync(this._qrCodePath)
+        if (Date.now() - stat.lastModifiedTime < 300000) {
+          callback(this._qrCodePath)
+          return
+        }
+      } catch (_) {}
+    }
+    // 云函数取码
+    try {
+      if (wx.cloud && typeof wx.cloud.callFunction === 'function') {
+        wx.cloud.callFunction({
+          name: 'getQRCode',
+          success: res => {
+            if (res.result && res.result.code === 0 && res.result.buffer) {
+              try {
+                const fs = wx.getFileSystemManager()
+                const path = `${wx.env.USER_DATA_PATH}/qr_${Date.now()}.png`
+                fs.writeFileSync(path, res.result.buffer, 'base64')
+                this._qrCodePath = path
+                callback(path)
+              } catch (_) { callback('') }
+            } else { callback('') }
+          },
+          fail: () => callback('')
+        })
+        return
+      }
+    } catch (_) {}
+    callback('')
+  },
+
+  /* ── 草案选择 ── */
+  onPickDraft(e) {
+    const v = this.data.draftVariants[e.currentTarget.dataset.index]
+    if (!v) return
+    const ratio = this.data.ratios[v.ratioIdx]
+    const tpl = getApp().globalData.templates[v.tplIdx]
+    this.setData({
+      currentTemplate: v.tplIdx, activeTemplate: tpl,
+      currentRatio: v.ratioIdx, activeRatio: ratio,
+      canvasDisplayW: ratio.w, canvasDisplayH: ratio.h,
+      showDrafts: false, loading: true, generating: true
+    })
+    setTimeout(() => this.runDrawPipe(), 200)
+  },
 
   /* ── 模式切换 ── */
   onSwitchMode(e) {
@@ -185,18 +243,49 @@ Page({
   },
 
   /* ── 生成卡片 ── */
-  onGenerate(afterGenerate) {
+  onGenerate(afterGenerate, opts) {
+    const skipModal = !!(opts && opts.skipModal)
     const callback = typeof afterGenerate === 'function' ? afterGenerate : null
     const text = this.data.inputText.trim()
     if (!text) {
       wx.showToast({ title: '先写点文字', icon: 'none' })
       return
     }
-    this.setData({ showResult: true, cardImagePath: '', cardReady: false, truncated: false, generating: true, loading: true })
+    this.setData({
+      showResult: !skipModal, skipModal,
+      showDrafts: !skipModal,
+      cardImagePath: '', cardReady: false, truncated: false,
+      generating: true, loading: false
+    })
+
+    if (!skipModal) {
+      // 准备 3 种草案变体
+      const templates = getApp().globalData.templates
+      const tplIdx = this.data.currentTemplate
+      const t2 = (tplIdx + 1) % templates.length
+      const t3 = (tplIdx + 2) % templates.length
+      const rIdx = this.data.currentRatio
+      const r2 = this.data.ratios[(rIdx + 1) % this.data.ratios.length]
+      this.setData({
+        draftVariants: [
+          { label: `「${templates[tplIdx].name}」${this.data.activeRatio.label}`, tplIdx, ratioIdx: rIdx },
+          { label: `「${templates[t2].name}」${this.data.activeRatio.label}`, tplIdx: t2, ratioIdx: rIdx },
+          { label: `「${templates[tplIdx].name}」${r2.label}`, tplIdx, ratioIdx: this.data.ratios.indexOf(r2) }
+        ]
+      })
+      return
+    }
     setTimeout(() => this.runDrawPipe(callback), 360)
   },
 
   runDrawPipe(afterGenerate) {
+    // 异步获取小程序码（缓存 ≤5min）
+    this.fetchQRCode(qrPath => {
+      this._runDrawPipeCore(afterGenerate, qrPath)
+    })
+  },
+
+  _runDrawPipeCore(afterGenerate, qrCodePath) {
     const query = wx.createSelectorQuery()
     query.select('#cardCanvas')
       .fields({ node: true, size: true })
@@ -220,7 +309,7 @@ Page({
           : [{ segments: [{ text: rawText, bold: false, scale: 1 }], headingLevel: 0, gapBefore: 0, gapAfter: 0, isHeading: false }]
 
         renderer.drawCard({
-          canvas, ctx, W, H, dpr, tpl, rawText, mdLines,
+          canvas, ctx, W, H, dpr, tpl, rawText, mdLines, qrCodePath,
           onDone: truncated => {
             wx.canvasToTempFilePath({
               canvas,
@@ -231,14 +320,13 @@ Page({
                 this.setData({ generating: false, loading: false })
                 const fs = wx.getFileSystemManager()
                 const persistentPath = `http://usr/flashcard_${Date.now()}.png`
+                let finalPath = res.tempFilePath
                 try {
                   fs.saveFileSync(res.tempFilePath, persistentPath)
-                  this.setData({ cardImagePath: persistentPath, cardReady: true, truncated })
-                  this.saveToHistory({ path: persistentPath, text: rawText, templateIndex: this.data.currentTemplate, ratioIndex: this.data.currentRatio, time: Date.now() })
-                } catch (_) {
-                  this.setData({ cardImagePath: res.tempFilePath, cardReady: true, truncated })
-                  this.saveToHistory({ path: res.tempFilePath, text: rawText, templateIndex: this.data.currentTemplate, ratioIndex: this.data.currentRatio, time: Date.now() })
-                }
+                  finalPath = persistentPath
+                } catch (_) {}
+                this.setData({ cardImagePath: finalPath, cardReady: true, truncated })
+                this.saveToHistory({ path: finalPath, text: rawText, templateIndex: this.data.currentTemplate, ratioIndex: this.data.currentRatio, time: Date.now() })
                 if (typeof afterGenerate === 'function') afterGenerate()
               },
               fail: err => {
@@ -259,15 +347,22 @@ Page({
   },
 
   /* ── 保存 ── */
-  onSaveToAlbum() { this.onGenerate(() => this.saveImage()) },
+  onSaveToAlbum() {
+    // 一步到位：绘制 → 保存到相册 → toast，不弹窗口
+    this.onGenerate(() => this.saveImage(), { skipModal: true })
+  },
   onDownloadImage() { this.saveImage() },
 
   saveImage() {
     const path = this.data.cardImagePath
     if (!path) return
+    const skipModal = this.data.skipModal
     wx.saveImageToPhotosAlbum({
       filePath: path,
-      success: () => wx.showToast({ title: '已保存到相册', icon: 'success' }),
+      success: () => {
+        wx.showToast({ title: '已保存到相册', icon: 'success' })
+        if (skipModal) this.setData({ skipModal: false, cardImagePath: '', cardReady: false })
+      },
       fail: err => {
         if (err.errMsg && err.errMsg.indexOf('auth deny') > -1) {
           wx.showModal({
@@ -278,12 +373,13 @@ Page({
         } else {
           wx.showToast({ title: '保存失败', icon: 'none' })
         }
+        if (skipModal) this.setData({ skipModal: false })
       }
     })
   },
 
   /* ── 分享 ── */
-  onCloseResult() { this.setData({ showResult: false, cardReady: false }) },
+  onCloseResult() { this.setData({ showResult: false, cardReady: false, showDrafts: false, draftVariants: [] }) },
 
   onShareAppMessage() {
     const text = this.data.inputText

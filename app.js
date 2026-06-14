@@ -122,6 +122,81 @@ App({
           colophonStyle: 'minimal',
           marginX: 60
         }
+      },
+      {
+        id: 'paper',
+        name: '纸页',
+        bg: '#f4f0e6',
+        bg2: '#e8e2d0',
+        text: '#2a2216',
+        text2: '#6a5d4a',
+        accent: '#8b4513',
+        accent2: '#a0622e',
+        rule: '#d4c8b4',
+        draw: {
+          fontWeight: 400,
+          fontSizeBase: 42,
+          colophonStyle: 'rule',
+          marginX: 88,
+          wideSpacing: true
+        }
+      },
+      {
+        id: 'typewriter',
+        name: '打字机',
+        bg: '#faf8f2',
+        bg2: '#f0ece0',
+        text: '#1a1612',
+        text2: '#5a544a',
+        accent: '#c0392b',
+        accent2: '#e74c3c',
+        rule: '#d8d4c8',
+        draw: {
+          fontWeight: 400,
+          fontSizeBase: 36,
+          colophonStyle: 'minimal',
+          hairlineTop: false,
+          marginX: 72
+        }
+      },
+      {
+        id: 'brutalist',
+        name: '粗野',
+        bg: '#ff6b00',
+        bg2: '#e05000',
+        text: '#000000',
+        text2: '#1a1a1a',
+        accent: '#000000',
+        accent2: '#000000',
+        rule: '#cc5500',
+        draw: {
+          fontWeight: 900,
+          fontSizeBase: 60,
+          colophonStyle: 'box',
+          textAlign: 'center',
+          hairlineTop: false,
+          hairlineBottom: false,
+          gridLines: true,
+          marginX: 36
+        }
+      },
+      {
+        id: 'terminal',
+        name: '终端',
+        bg: '#0c0c0c',
+        bg2: '#141414',
+        text: '#00ff41',
+        text2: '#009933',
+        accent: '#00ff41',
+        accent2: '#00cc33',
+        rule: '#1a3a1a',
+        draw: {
+          fontWeight: 400,
+          fontSizeBase: 40,
+          colophonStyle: 'prompt',
+          leftAccent: true,
+          marginX: 68
+        }
       }
     ],
     currentTemplateIndex: 0

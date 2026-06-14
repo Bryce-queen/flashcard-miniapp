@@ -118,11 +118,21 @@
   border: 1px solid #d9d2c0;
   border-radius: 2rpx;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
 }
 .example-chip:active {
   background: #1a1612;
   color: #fbf7ee;
   border-color: #1a1612;
+}
+.chip-swatch-sm {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+  border-radius: 2rpx;
+  border: 1px solid rgba(0,0,0,0.08);
 }
 
 /* ── 输入区 · 无边框纯文本 ── */
@@ -343,6 +353,11 @@
   height: 720rpx;
   margin-bottom: 28rpx;
 }
+.offscreen-canvas {
+  position: fixed;
+  left: -9999rpx;
+  top: 0;
+}
 .modal-preview {
   width: 540rpx;
   border: 1px solid #d9d2c0;
@@ -492,4 +507,35 @@
 @keyframes skel-pulse {
   0%, 100% { opacity: 0.35; }
   50% { opacity: 0.75; }
+}
+
+/* ── 草案选择 ── */
+.drafts-pick {
+  width: 100%;
+  margin-bottom: 28rpx;
+}
+.drafts-title {
+  display: block;
+  font-size: 24rpx;
+  color: #7a7062;
+  margin-bottom: 20rpx;
+}
+.drafts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.draft-chip {
+  padding: 20rpx 28rpx;
+  border: 1px solid #d9d2c0;
+  background: #faf8f0;
+  font-size: 26rpx;
+  color: #1a1612;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+.draft-chip:active {
+  background: #1a1612;
+  color: #fbf7ee;
+  border-color: #1a1612;
 }

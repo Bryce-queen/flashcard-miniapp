@@ -54,10 +54,16 @@ function flattenLines(ctx, mdLines, maxW, fontSize, fontWeight) {
 /**
  * 按可用宽度换行
  * CJK 文本逐字换行；含拉丁字符时尝试在单词边界换行
+ * 含避头标点：行首不出现 。，、；：！？）】》」』
  */
 function wrapPlainText(ctx, text, maxWidth) {
   const lines = []
   let cur = ''
+
+  // 不可在行首出现的标点
+  const NO_LEAD = /^[。，、；：！？）」』】》>\.,;:!?\]\)}»›%]/
+  // 不可在行尾出现的标点
+  const NO_TRAIL = /[（「『【《<\[\({$]$/
 
   for (let i = 0; i < text.length; i++) {
     const ch = text[i]
@@ -65,7 +71,7 @@ function wrapPlainText(ctx, text, maxWidth) {
 
     const test = cur + ch
     if (ctx.measureText(test).width > maxWidth && cur.length > 0) {
-      // 如果当前行含拉丁字符，尝试在最后一个空格处断行
+      // 尝试空格断行（拉丁文本）
       const hasLatin = /[a-zA-Z]/.test(cur)
       if (hasLatin) {
         const lastSpace = cur.lastIndexOf(' ')
@@ -74,6 +80,18 @@ function wrapPlainText(ctx, text, maxWidth) {
           cur = cur.slice(lastSpace + 1) + ch
           continue
         }
+      }
+      // 避头：如果 ch 是标点，回退 cur 最后一个字到下一行
+      if (NO_LEAD.test(ch) && cur.length >= 2) {
+        lines.push(cur.slice(0, -1))
+        cur = cur.slice(-1) + ch
+        continue
+      }
+      // 避尾：如果 cur 末字是开括号，提前带到下一行
+      if (NO_TRAIL.test(cur) && cur.length >= 2) {
+        lines.push(cur.slice(0, -1))
+        cur = cur.slice(-1) + ch
+        continue
       }
       lines.push(cur)
       cur = ch

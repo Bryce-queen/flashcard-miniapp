@@ -24,17 +24,21 @@
       <text class="examples-label">试试这些：</text>
       <view class="examples-list">
         <view class="example-chip" bindtap="onExampleTap" data-text="今天学了一个新词：**反脆弱**">
+          <view class="chip-swatch-sm" style="background:#f3ecd9"></view>
           <text>今天学了一个新词：反脆弱</text>
         </view>
         <view class="example-chip" bindtap="onExampleTap" data-text="# 此刻
 窗外下雨，我在听坂本龙一">
+          <view class="chip-swatch-sm" style="background:#148a70"></view>
           <text>此刻 · 窗外下雨，我在听坂本龙一</text>
         </view>
         <view class="example-chip" bindtap="onExampleTap" data-text="人生不是马拉松
 **是无数次短跑**">
+          <view class="chip-swatch-sm" style="background:#b04a1a"></view>
           <text>人生不是马拉松…</text>
         </view>
         <view class="example-chip" bindtap="onExampleTap" data-text="完成 > 完美">
+          <view class="chip-swatch-sm" style="background:#4a7cb5"></view>
           <text>完成 > 完美</text>
         </view>
       </view>
@@ -158,18 +162,27 @@
   </view>
 
   <!-- 结果弹窗 -->
-  <view class="modal" wx:if="{{showResult}}">
+  <view class="modal" wx:if="{{showResult && !skipModal}}">
     <view class="modal-overlay" bindtap="onCloseResult"></view>
     <view class="modal-panel">
       <text class="modal-hd">卡片已生成<text wx:if="{{truncated}}" style="color:#b04a1a;font-weight:400;font-size:24rpx"> · 文字较长已截断</text></text>
-      <canvas
-        type="2d"
-        id="cardCanvas"
-        class="modal-canvas"
-        style="width:{{canvasDisplayW}}rpx; height:{{canvasDisplayH}}rpx"
-      ></canvas>
+      <!-- 草案选择 -->
+      <view wx:if="{{showDrafts && draftVariants.length}}" class="drafts-pick">
+        <text class="drafts-title">选择排版草案</text>
+        <view class="drafts-list">
+          <view
+            wx:for="{{draftVariants}}"
+            wx:key="index"
+            class="draft-chip"
+            data-index="{{index}}"
+            bindtap="onPickDraft"
+          >
+            <text class="draft-label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
       <image wx:if="{{cardImagePath}}" class="modal-preview" src="{{cardImagePath}}" mode="widthFix"></image>
-      <view wx:elif="{{loading}}" class="modal-skeleton" style="width:{{canvasDisplayW}}rpx; height:{{canvasDisplayH}}rpx">
+      <view wx:elif="{{loading && !skipModal}}" class="modal-skeleton" style="width:{{canvasDisplayW}}rpx; height:{{canvasDisplayH}}rpx">
         <view class="skel-bar skel-w80"></view>
         <view class="skel-bar skel-w60"></view>
         <view class="skel-bar skel-w90"></view>
@@ -183,3 +196,11 @@
     </view>
   </view>
 </view>
+
+<!-- Canvas 离屏层：常驻 DOM，供弹窗和快捷保存共用 -->
+<canvas
+  type="2d"
+  id="cardCanvas"
+  class="offscreen-canvas"
+  style="width:{{canvasDisplayW}}rpx; height:{{canvasDisplayH}}rpx"
+></canvas>
