@@ -290,6 +290,7 @@ Page({
     query.select('#cardCanvas')
       .fields({ node: true, size: true })
       .exec(res => {
+        try {
         if (!res || !res[0] || !res[0].node) {
           this.setData({ generating: false, loading: false })
           wx.showToast({ title: '画布初始化失败', icon: 'none' })
@@ -343,6 +344,7 @@ Page({
             })
           }
         })
+        } catch (e) { this._onDrawError(e) }
       })
   },
 
@@ -394,5 +396,18 @@ Page({
       result.imageUrl = this.data.cardImagePath
     }
     return result
+  },
+
+  /* ── 错误边界 ── */
+  _onDrawError(e) {
+    console.error('闪卡渲染崩溃:', e)
+    this.setData({ generating: false, loading: false, showDrafts: false })
+    const msg = e && e.message ? String(e.message).slice(0, 60) : '未知错误'
+    wx.showModal({
+      title: '渲染出错',
+      content: `生成卡片时遇到了问题。\n\n错误信息: ${msg}\n\n请尝试更短的文字或切换模板。`,
+      showCancel: false,
+      confirmText: '好的'
+    })
   }
 })

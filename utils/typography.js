@@ -9,12 +9,13 @@
  * 最坏情况迭代 13 轮（54→22，步长 2），每轮测量 500 字符，
  * 低端 Android 约 100-200ms，可接受
  */
-function fitFontSize(ctx, mdLines, maxW, preferredSize, fontWeight, maxLines) {
+function fitFontSize(ctx, mdLines, maxW, preferredSize, fontWeight, availH, lhMult) {
   let fs = preferredSize
   let physLines
   const minSize = 22
   while (fs >= minSize) {
     physLines = flattenLines(ctx, mdLines, maxW, fs, fontWeight)
+    const maxLines = Math.floor(availH / (fs * lhMult))
     if (physLines.length <= maxLines) break
     fs -= 2
   }

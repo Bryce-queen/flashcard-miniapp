@@ -19,12 +19,17 @@ function drawCard(opts) {
 
   const d = tpl.draw
 
-  // ── 字号 + 行展开 ──
+  // ── 字号 + 行展开（自适应行高，不再硬编 H/52）──
   const maxW = W - d.marginX * 2
-  const { fontSize, physLines: rawLines } = typo.fitFontSize(ctx, mdLines, maxW, d.fontSizeBase, d.fontWeight, Math.floor(H / 52))
+  const headerH = d.hairlineTop ? 110 : 90
+  const footerH = d.hairlineBottom ? 72 : 56
+  const availH = H - headerH - footerH
+  const lhMult = d.wideSpacing ? 1.72 : 1.52
+  const { fontSize, physLines: rawLines } = typo.fitFontSize(ctx, mdLines, maxW, d.fontSizeBase, d.fontWeight, availH, lhMult)
 
-  // ── 溢出截断 · 按高度自适应 (3:4→14行, 1:1→10行) ──
-  const maxPhysLines = Math.floor(H / 52)
+  // ── 溢出截断（用实际行高重算容量）──
+  const realLh = fontSize * lhMult
+  const maxPhysLines = Math.floor(availH / realLh)
   let truncated = false
   let physLines = rawLines
   if (physLines.length > maxPhysLines) {
@@ -49,8 +54,8 @@ function drawCard(opts) {
   if (d.starDots) drawStarDots(ctx, W, H, tpl.accent, rawText)
 
   // ═══════ 3. 富文本排印 ═══════
-  const lh = fontSize * 1.52
-  let y = d.hairlineTop ? 110 : 90
+  const lh = fontSize * lhMult
+  let y = headerH
 
   for (const pl of physLines) {
     y += pl.gapBefore * lh
