@@ -169,6 +169,13 @@
         style="width:{{canvasDisplayW}}rpx; height:{{canvasDisplayH}}rpx"
       ></canvas>
       <image wx:if="{{cardImagePath}}" class="modal-preview" src="{{cardImagePath}}" mode="widthFix"></image>
+      <view wx:elif="{{loading}}" class="modal-skeleton" style="width:{{canvasDisplayW}}rpx; height:{{canvasDisplayH}}rpx">
+        <view class="skel-bar skel-w80"></view>
+        <view class="skel-bar skel-w60"></view>
+        <view class="skel-bar skel-w90"></view>
+        <view class="skel-bar skel-w40"></view>
+        <text class="skel-text">绘制中…</text>
+      </view>
       <view class="modal-actions">
         <button class="btn btn-share" open-type="share" disabled="{{!cardReady}}">分享给朋友</button>
         <button class="btn btn-download" bindtap="onDownloadImage" disabled="{{!cardReady}}">保存图片</button>

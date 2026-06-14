@@ -20,6 +20,7 @@ Page({
     inputText: '',
     previewText: '',
     generating: false,
+    loading: false,
     templates: getApp().globalData.templates,
     currentTemplate: 0,
     activeTemplate: getApp().globalData.templates[0],
@@ -191,7 +192,7 @@ Page({
       wx.showToast({ title: '先写点文字', icon: 'none' })
       return
     }
-    this.setData({ showResult: true, cardImagePath: '', cardReady: false, truncated: false, generating: true })
+    this.setData({ showResult: true, cardImagePath: '', cardReady: false, truncated: false, generating: true, loading: true })
     setTimeout(() => this.runDrawPipe(callback), 360)
   },
 
@@ -201,7 +202,7 @@ Page({
       .fields({ node: true, size: true })
       .exec(res => {
         if (!res || !res[0] || !res[0].node) {
-          this.setData({ generating: false })
+          this.setData({ generating: false, loading: false })
           wx.showToast({ title: '画布初始化失败', icon: 'none' })
           return
         }
@@ -227,9 +228,9 @@ Page({
               destWidth: W * dpr,
               destHeight: H * dpr,
               success: res => {
-                this.setData({ generating: false })
+                this.setData({ generating: false, loading: false })
                 const fs = wx.getFileSystemManager()
-                const persistentPath = `${wx.env.USER_DATA_PATH}/flashcard_${Date.now()}.png`
+                const persistentPath = `http://usr/flashcard_${Date.now()}.png`
                 try {
                   fs.saveFileSync(res.tempFilePath, persistentPath)
                   this.setData({ cardImagePath: persistentPath, cardReady: true, truncated })
@@ -241,9 +242,15 @@ Page({
                 if (typeof afterGenerate === 'function') afterGenerate()
               },
               fail: err => {
-                this.setData({ generating: false })
+                this.setData({ generating: false, loading: false })
                 console.error('Canvas 导出失败', err)
-                wx.showToast({ title: '生成失败，请重试', icon: 'none' })
+                const errMsg = err.errMsg || ''
+                const hint = errMsg.includes('memory') || errMsg.includes('MEMORY')
+                  ? '内存不足，试试更短的文字'
+                  : errMsg.includes('timeout') || errMsg.includes('TIMEOUT')
+                    ? '设备处理超时，请降低比例重试'
+                    : '生成失败，请重试'
+                wx.showToast({ title: hint, icon: 'none', duration: 2800 })
               }
             })
           }
@@ -283,10 +290,13 @@ Page({
     const snippet = text
       ? md.stripMarkdown(text).slice(0, 16) + (text.length > 16 ? '…' : '')
       : '一句话记录此刻'
-    return {
+    const result = {
       title: `闪卡 · ${snippet}`,
-      path: '/pages/index/index',
-      imageUrl: this.data.cardImagePath || ''
+      path: '/pages/index/index'
     }
+    if (this.data.cardImagePath) {
+      result.imageUrl = this.data.cardImagePath
+    }
+    return result
   }
 })

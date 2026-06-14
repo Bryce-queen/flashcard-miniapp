@@ -90,7 +90,7 @@ function drawCard(opts) {
   drawColophon(ctx, W, H, tpl, d)
 
   // ═══════ 5. 水印 ═══════
-  drawWatermark(ctx, W, H)
+  drawWatermark(ctx, W, H, tpl.bg)
 
   onDone(truncated)
 }
@@ -231,20 +231,24 @@ function drawColophon(ctx, W, H, tpl, d) {
   ctx.textAlign = 'left'
 }
 
-function drawWatermark(ctx, W, H) {
+function drawWatermark(ctx, W, H, bg) {
   const text = '闪 卡'
   const fs = 14
   ctx.save()
-  ctx.fillStyle = '#ffffff'
-  ctx.globalAlpha = 0.07
+  ctx.fillStyle = getLuminance(bg) > 0.45 ? '#000000' : '#ffffff'
+  ctx.globalAlpha = 0.08
   ctx.font = `${fs}px -apple-system, "PingFang SC", sans-serif`
   ctx.textAlign = 'right'
   ctx.textBaseline = 'bottom'
   ctx.fillText(text, W - 20, H - 14)
-  ctx.fillStyle = '#000000'
-  ctx.globalAlpha = 0.04
-  ctx.fillText(text, W - 20, H - 14)
   ctx.restore()
+}
+
+function getLuminance(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  return 0.299 * r + 0.587 * g + 0.114 * b
 }
 
 function hashText(text) {

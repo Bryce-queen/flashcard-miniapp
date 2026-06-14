@@ -461,3 +461,35 @@
 .history-card:active .history-thumb {
   opacity: 0.6;
 }
+
+/* ── 加载骨架 ── */
+.modal-skeleton {
+  border: 1px solid #d9d2c0;
+  padding: 64rpx 48rpx;
+  box-sizing: border-box;
+  margin-bottom: 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  justify-content: flex-start;
+}
+.skel-bar {
+  height: 16rpx;
+  background: #e5dfcb;
+  border-radius: 1rpx;
+  animation: skel-pulse 1.6s ease-in-out infinite;
+}
+.skel-w80 { width: 80%; }
+.skel-w60 { width: 60%; }
+.skel-w90 { width: 90%; }
+.skel-w40 { width: 40%; }
+.skel-text {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #b5aa9a;
+  letter-spacing: 0.06em;
+}
+@keyframes skel-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.75; }
+}
